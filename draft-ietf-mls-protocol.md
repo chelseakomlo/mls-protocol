@@ -698,13 +698,16 @@ they receive the private keys for nodes, as described in
 {{ratchet-tree-evolution}}.
 
 ## Ratchet Tree Evolution
-
-When performing a Commit, the generator of the Commit updates its leaf
-KeyPackage and its direct path to the root with new secret values.  The
+In order to ratchet forward secret key material in the tree (and consequently
+also the group's shared secret), a group member must generate
+and distribute an UpdatePath message (as further described in
+{{update-path}}. When generating an UpdatePath, the generating member  first
+updates its leaf
+KeyPackage and then its direct path to the root with new secret values.  The
 HPKE leaf public key within the KeyPackage MUST be derived from a freshly
 generated HPKE secret key to provide post-compromise security.
 
-The generator of the Commit starts by sampling a fresh random value called
+To generate the UpdatePath, the generating member starts by sampling a fresh random value called
 "leaf_secret", and uses the leaf_secret to generate their leaf HPKE key pair
 (see {{key-packages}}) and to seed a sequence of "path secrets", one for each
 ancestor of its leaf. In this setting,
@@ -749,7 +752,7 @@ of path secrets:
                    ~> leaf_key_package
 ~~~~~
 
-After the Commit, the tree will have the following structure, where
+After applying the UpdatePath, the tree will have the following structure, where
 "np\[i\]" represents the node_priv values generated as described
 above:
 
@@ -761,13 +764,13 @@ above:
     A    B    C   D
 ~~~~~
 
-After performing these operations, the generator of the Commit MUST
+After performing these operations, the generator of the UpdatePath MUST
 delete the leaf_secret.
 
 ## Synchronizing Views of the Tree
 
-After generating a Commit as described in the prior section, the generator of
-the Commit must broadcast this update to other members of the group, who
+After generating the UpdatePath as described in the prior section, the generator of
+the UpdatePath must broadcast this update to other members of the group, who
 apply it to keep their local views of the tree in
 sync with the sender's.  When a client commits a change to the tree
 (e.g., to add or remove a member), it transmits a handshake message
@@ -777,7 +780,7 @@ other members of the group can use these public values to update
 their view of the tree, aligning their copy of the tree to the
 sender's.
 
-To perform an update for a path (a Commit), the sender broadcasts to the group
+To complete an update for a path, the sender broadcasts to the group
 the following information for each node in the direct path of the
 leaf, including the root:
 
@@ -831,7 +834,7 @@ for user X.  The value E(K, S) represents
 the public-key encryption of the path secret S to the
 public key K.
 
-After processing the update, each recipient MUST delete outdated key material,
+After processing the UpdatePath, each recipient MUST delete outdated key material,
 specifically:
 
 * The path secrets used to derive each updated node key pair.
