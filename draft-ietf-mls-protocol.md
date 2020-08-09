@@ -618,7 +618,7 @@ define an instance of HPKE, namely:
 
 Each node in a ratchet tree contains up to five values:
 
-* A private key (only within the member's direct path, see below)
+* A private key (only within the member's direct path to the root, see below)
 * A public key
 * An ordered list of leaf indices for "unmerged" leaves (see
   {{views}})
@@ -1193,10 +1193,10 @@ without having to store the whole MLSPlaintextCommitAuthData structure.
 When a new group is created, the `interim_transcript_hash` field is set to the
 zero-length octet string.
 
-## Direct Paths
+## Update Paths
 
 As described in {{commit}}, each MLS Commit message needs to
-transmit a KeyPackage leaf and node values along its direct path.
+transmit a KeyPackage leaf and node values along its direct path to the root.
 The path contains a public key and encrypted secret value for all
 intermediate nodes in the path above the leaf.  The path is ordered
 from the closest node to the leaf to the root; each node MUST be the
